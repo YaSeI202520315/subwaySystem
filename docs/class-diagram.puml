@@ -1,0 +1,115 @@
+@startuml class-diagram
+' 武汉地铁模拟运行系统 —— 类图（仅展示主要属性与方法）
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+class Test {
+    +main(String[] args)
+    -printSummary(MetroNetwork network) : void
+    -testTransferStations(MetroNetwork network) : void
+    -testStationsWithinDistance(MetroNetwork network) : void
+    -testReasonableRoutes(MetroNetwork network) : void
+    -testShortestPath(MetroNetwork network) : void
+    -testPathFare(MetroNetwork network) : void
+}
+
+class MetroNetwork {
+    +MAX_REASONABLE_ROUTES : int = 10
+    -lines : Map<String, MetroLine>
+    -stationLines : Map<String, Set<String>>
+    -adjacency : Map<String, Map<String, Double>>
+    -segmentLines : Map<String, Set<String>>
+    +load(Path file) : MetroNetwork
+    +lineCount() : int
+    +stationCount() : int
+    +linesOfStation(String station) : Set<String>
+    +stationCountOfLine(String lineName) : int
+    +transferStations() : Map<String, Set<String>>
+    +stationsWithinDistance(String station, double limitKm) : Map<String, StationDistance>
+    +reasonableRoutes(String from, String to) : List<Route>
+    +shortestPath(String from, String to) : List<String>
+    +pathDistance(List<String> path) : double
+    +rideSegments(List<String> path) : List<RideSegment>
+    +printRoute(List<String> path) : void
+    -minTransfers(String from, String to) : int
+    -dijkstra(String source) : Map<String, Double>
+}
+
+class MetroLine {
+    -name : String
+    -stations : List<String>
+    -segmentKm : List<Double>
+    +appendSegment(String from, String to, double km) : void
+    +name() : String
+    +stationCount() : int
+}
+
+class StationDistance {
+    -station : String
+    -lines : Set<String>
+    -km : double
+    +station() : String
+    +lines() : Set<String>
+    +km() : double
+    +toString() : String
+}
+
+class "MetroNetwork.Route" as Route {
+    -stations : List<String>
+    -km : double
+    -transfers : int
+    +stations() : List<String>
+    +km() : double
+    +stationCount() : int
+    +transfers() : int
+}
+
+class "MetroNetwork.RideSegment" as RideSegment {
+    -line : String
+    -from : String
+    -to : String
+    +line() : String
+    +from() : String
+    +to() : String
+}
+
+class FareCalculator {
+    +WUHAN_TONG_DISCOUNT : double = 0.9
+    +DAY_TICKET_1_PRICE : int = 18
+    +DAY_TICKET_3_PRICE : int = 45
+    +DAY_TICKET_7_PRICE : int = 90
+    +singleFare(double km) : int
+    +wuhanTongFare(double km) : double
+    +periodPassFare(double km) : double
+}
+
+class InvalidInputException {
+}
+
+Test ..> MetroNetwork : use
+Test ..> FareCalculator : use
+Test ..> InvalidInputException : catch
+
+MetroNetwork *-- "1..*" MetroLine : contains
+MetroNetwork ..> StationDistance : <<create>>
+MetroNetwork ..> Route : <<create>>
+MetroNetwork ..> RideSegment : <<create>>
+MetroNetwork ..> InvalidInputException : <<throw>>
+
+InvalidInputException --|> Exception
+
+note right of MetroNetwork
+  站点以站名(String)唯一标识；
+  adjacency 保存相邻站之间的最小里程；
+  segmentLines 记录共线区间的线路集合
+  （如 中南路-洪山广场 属 2/4 号线）。
+  算法：Dijkstra（最短路径）、0-1 BFS（最少换乘）、
+  带剪枝 DFS + Pareto 去支配（合理路线）。
+end note
+
+note right of FareCalculator
+  所有成员均为静态工具方法，与路网解耦；
+  票价规则依据武汉地铁集团官网票务规定。
+end note
+@enduml

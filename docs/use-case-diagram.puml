@@ -1,0 +1,55 @@
+@startuml use-case-diagram
+' 武汉地铁模拟运行系统 —— 用例图
+left to right direction
+skinparam shadowing false
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #FEFEFE
+    BorderColor #333333
+}
+
+actor "乘客" as Passenger
+
+rectangle "武汉地铁模拟运行系统" {
+    usecase "查询站点线路信息" as UC_StationLines
+    usecase "查询线路站点信息" as UC_LineStations
+    usecase "查询中转站" as UC_Transfers
+    usecase "查询周边站点" as UC_Nearby
+    usecase "查询最短路线" as UC_Shortest
+    usecase "查询合理乘车路线" as UC_Reasonable
+    usecase "查看分段乘车指引" as UC_Guide
+    usecase "计算票价" as UC_Fare
+    usecase "计算单程票价" as UC_FareSingle
+    usecase "计算武汉通票价" as UC_FareWuhanTong
+    usecase "计算定期票票价" as UC_FarePass
+}
+
+Passenger --> UC_StationLines
+Passenger --> UC_LineStations
+Passenger --> UC_Transfers
+Passenger --> UC_Nearby
+Passenger --> UC_Shortest
+Passenger --> UC_Reasonable
+Passenger --> UC_Fare
+
+UC_Reasonable ..> UC_Shortest : <<include>>
+UC_Guide ..> UC_Reasonable : <<extend>>
+UC_Fare ..> UC_Reasonable : <<extend>>
+UC_FareSingle --|> UC_Fare
+UC_FareWuhanTong --|> UC_Fare
+UC_FarePass --|> UC_Fare
+
+note bottom of UC_Reasonable
+  合理路线：无环；里程 ≤ 最短 × 1.5；
+  换乘 ≤ 最少换乘 + 2；删除被全面占优的路线；
+  按里程升序，最多 10 条
+end note
+
+note bottom of UC_Fare
+  票价规则来源：武汉地铁集团官网
+  单程票按里程分段计价；武汉通 9 折；
+  定期票（1/3/7 日）有效期内不限次
+end note
+
+' 线路数据 subway.txt 在系统启动时加载，属于前置条件，不作为参与者绘制
+@enduml
