@@ -138,16 +138,11 @@ java -Dstdout.encoding=UTF-8 -cp out subway.Test
 ## UML 设计文档
 
 - 用例图：`docs/use-case-diagram.puml`
+  ![use-case-diagram.png](docs%2Fuse-case-diagram.png)
 - 类图：`docs/class-diagram.puml`
+![class-diagram.png](docs%2Fclass-diagram.png))
+
 - 用例详细描述（查询合理乘车路线）与图说明：`docs/uml-design.md`
-
-出图命令（需先下载 PlantUML，或直接粘贴到 <https://www.plantuml.com/plantuml/uml/> 在线渲染）：
-
-```bash
-mkdir -p tools
-curl -L -o tools/plantuml.jar https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
-java -jar tools/plantuml.jar -tpng docs/use-case-diagram.puml docs/class-diagram.puml
-```
 
 ## 建模约定
 
